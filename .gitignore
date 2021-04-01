@@ -3,3 +3,7 @@
 
 # Python Backend Core
 backend/*
+
+# Temporal Python files
+
+*/__pycache__/*
