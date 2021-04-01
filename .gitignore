@@ -1,0 +1,5 @@
+# Visual code debug
+.vscode/*
+
+# Python Backend Core
+backend/*
