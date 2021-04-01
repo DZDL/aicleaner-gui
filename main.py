@@ -109,19 +109,19 @@ class MainWindow(QObject):
         print(f'[{nameOfFile}][{nameOfFunction}] Started')
         # Step 1: Create worker
         # Step 2: Create a QThread object
-        self.thread = QThread()
+        self.thread2 = QThread()
         # Step 3: Create a worker object
-        self.worker = WorkerBashCommand()
+        self.worker2 = WorkerBashCommand()
         # Step 4: Move worker to the thread
-        self.worker.moveToThread(self.thread)
+        self.worker2.moveToThread(self.thread2)
         # Step 5: Connect signals and slots
-        self.thread.started.connect(self.worker.runBashCommand(COMMAND_RUN_CORE_BACKEND))
-        self.worker.finished.connect(self.thread.quit)
-        self.worker.finished.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.runFunctionCoreBackendFinished)
+        self.thread2.started.connect(self.worker2.runBashCommand(COMMAND_RUN_CORE_BACKEND))
+        self.worker2.finished.connect(self.thread2.quit)
+        self.worker2.finished.connect(self.worker2.deleteLater)
+        self.thread2.finished.connect(self.runFunctionCoreBackendFinished)
         
         # Step 6: Start the thread
-        self.thread.start()
+        self.thread2.start()
 
         print(f'[{nameOfFile}][{nameOfFunction}] Finished')
 
