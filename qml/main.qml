@@ -152,12 +152,7 @@ ApplicationWindow{
         // FUNCTION PROGRESS BAR
         function onSignalInstall(boolValue){
             if(boolValue){
-                var component = Qt.createComponent("install.qml")
-                var win = component.createObject()
-                win.textLogInstall = logInstall
-                win.show()
-                visible = false
-                progressBarInstallPythonBackend.value=0.5
+                progressBarInstallPythonBackend.value=1.0
             } 
         }
     }    

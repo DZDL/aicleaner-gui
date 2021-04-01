@@ -7,9 +7,10 @@ from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtCore import QObject, Slot, Signal, QObject, QThread
 
 
-PATH_BACKEND='backend/'
-COMMAND_GIT_CLONE_BACKEND='git clone https://github.com/DZDL/aicleaner '+PATH_BACKEND
-COMMAND_EXECUTE_MAIN_BACKEND='cd '+PATH_BACKEND+' && python3 main.py'
+PATH_BACKEND = 'backend/'
+COMMAND_GIT_CLONE_BACKEND = 'git clone https://github.com/DZDL/aicleaner '+PATH_BACKEND
+COMMAND_EXECUTE_MAIN_BACKEND = 'cd '+PATH_BACKEND + \
+    ' && python3 main.py ' + " && cd .."
 
 
 class WorkerInstallPythonBackend(QObject):
@@ -18,15 +19,26 @@ class WorkerInstallPythonBackend(QObject):
     """
     # https://realpython.com/python-pyqt-qthread/
     finished = Signal()
-    logText=Signal(str)
+    logText = Signal(str)
 
-    def run(self):
-        """Long-running task."""
+    def runGitClonePythonBackend(self):
+        """
+        Long-running task.
+        """
+        nameOfFunction=sys._getframe().f_code.co_name
+        nameOfFile=__file__
+        print(f'[{nameOfFile}][{nameOfFunction}] Started')
+
         log_git_clone_backend = os.popen(COMMAND_GIT_CLONE_BACKEND).read()
         self.logText.emit(str(log_git_clone_backend))
+        # print('FAKE CLONING FINISHED')
         self.finished.emit()
+        
+        print(f'[{nameOfFile}][{nameOfFunction}] Finished')
 
 # Main Window Classz
+
+
 class MainWindow(QObject):
     def __init__(self):
         QObject.__init__(self)
@@ -39,8 +51,8 @@ class MainWindow(QObject):
     signalUser = Signal(str)
     signalPass = Signal(str)
     signalLogin = Signal(bool)
-    signalInstall=Signal(bool)
-    signalInstallLog=Signal(str)
+    signalInstall = Signal(bool)
+    signalInstallLog = Signal(str)
 
     # Function To Check Login
     @Slot(str, str)
@@ -57,25 +69,39 @@ class MainWindow(QObject):
             self.signalLogin.emit(False)
             print("Login error!")
 
-            
     # Function To Check and Start install Python Backend
     @Slot()
     def installPythonBackend(self):
-
+        """
+        Code that execute when btnInstall is clicked
+        """
+        nameOfFunction=sys._getframe().f_code.co_name
+        nameOfFile=__file__
+        print(f'[{nameOfFile}][{nameOfFunction}] Started')
         # self.progressBarInstallPythonBackend.visible=True
         # self.ApplicationWindow.progressBarInstallPythonBackend=1.0
         self.signalInstall.emit(True)
-        
 
         if not os.path.isdir(PATH_BACKEND):
-            os.mkdir(PATH_BACKEND)  
+            os.mkdir(PATH_BACKEND)
 
             self.runCommandInstallPythonBackend()
-            self.signalInstallLog.emit("Log: " + log_git_clone_backend)
+            # self.signalInstallLog.emit("Log: " + log_git_clone_backend)
 
             # log_execute_main_backend = os.popen(COMMAND_EXECUTE_MAIN_BACKEND).read()
+        else:
             
+            print(f'[{nameOfFile}][{nameOfFunction}] Path {PATH_BACKEND} already exist')
+
+        print(f'[{nameOfFile}][{nameOfFunction}] Finished')
+
     def runCommandInstallPythonBackend(self):
+        """
+        Script that run a class as Thread to don't freeze main app
+        """
+        nameOfFunction=sys._getframe().f_code.co_name
+        nameOfFile=__file__
+        print(f'[{nameOfFile}][{nameOfFunction}] Started')
         # Step 1: Create worker
         # Step 2: Create a QThread object
         self.thread = QThread()
@@ -84,7 +110,7 @@ class MainWindow(QObject):
         # Step 4: Move worker to the thread
         self.worker.moveToThread(self.thread)
         # Step 5: Connect signals and slots
-        self.thread.started.connect(self.worker.run)
+        self.thread.started.connect(self.worker.runGitClonePythonBackend)
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
@@ -93,20 +119,27 @@ class MainWindow(QObject):
         self.thread.start()
 
         # Final resets
-        self.longRunningBtn.setEnabled(False)
-        self.thread.finished.connect(
-            lambda: self.longRunningBtn.setEnabled(True)
-        )
-        self.thread.finished.connect(
-            lambda: self.stepLabel.setText("Long-Running Step: 0")
-        )
+        # self.buttonInstall.setEnabled(False)
+        # self.thread.finished.connect(
+        #     lambda: self.buttonInstall.setEnabled(True)
+        # )
+        # self.thread.finished.connect(
+        #     lambda: self.stepLabel.setText("Long-Running Step: 0")
+        # )
+        print(f'[{nameOfFile}][{nameOfFunction}] Finished')
 
-    def sendReportLogText(self,mystr):
+    def sendReportLogText(self, mystr):
         """
         Send log from backend to frontend
         """
-        signalInstallLog.emit("ga")
+        nameOfFunction=sys._getframe().f_code.co_name
+        nameOfFile=__file__
+        print(f'[{nameOfFile}][{nameOfFunction}] Started')
+
+        self.signalInstallLog.emit("ga")
         
+        print(f'[{nameOfFile}][{nameOfFunction}] Finished')
+
 
 # INSTACE CLASS
 if __name__ == "__main__":

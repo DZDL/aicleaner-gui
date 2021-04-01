@@ -29,4 +29,6 @@ ApplicationWindow{
         anchors.horizontalCenter: parent.horizontalCenter
         font.pointSize: 10
     }
+
+     
 }
