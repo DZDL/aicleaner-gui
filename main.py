@@ -7,19 +7,19 @@ from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtCore import QObject, Slot, Signal, QObject, QThread
 
 
-PATH_BACKEND = 'backend/'
-COMMAND_GIT_CLONE_BACKEND = 'git clone https://github.com/DZDL/aicleaner '+PATH_BACKEND
-COMMAND_EXECUTE_MAIN_BACKEND = 'cd '+PATH_BACKEND + \
+PATH_CORE_BACKEND = 'backend/'
+COMMAND_GIT_CLONE_CORE_BACKEND = 'git clone https://github.com/DZDL/aicleaner '+PATH_CORE_BACKEND
+COMMAND_RUN_CORE_BACKEND = 'cd '+PATH_CORE_BACKEND + \
     ' && python3 main.py ' + " && cd .."
 
 
-class WorkerInstallPythonBackend(QObject):
+class WorkerInstallCoreBackend(QObject):
     """
     Class that allow multi-thread while executing commands
     """
     # https://realpython.com/python-pyqt-qthread/
+    # installingPythonBackend=Signal()
     finished = Signal()
-    logText = Signal(str)
 
     def runGitClonePythonBackend(self):
         """
@@ -29,16 +29,14 @@ class WorkerInstallPythonBackend(QObject):
         nameOfFile=__file__
         print(f'[{nameOfFile}][{nameOfFunction}] Started')
 
-        log_git_clone_backend = os.popen(COMMAND_GIT_CLONE_BACKEND).read()
-        self.logText.emit(str(log_git_clone_backend))
-        # print('FAKE CLONING FINISHED')
+        log_git_clone_backend = os.popen(COMMAND_GIT_CLONE_CORE_BACKEND).read()
+        print('FAKE CLONING FINISHED......................................')
+
         self.finished.emit()
         
         print(f'[{nameOfFile}][{nameOfFunction}] Finished')
 
-# Main Window Classz
-
-
+# Main Window Class
 class MainWindow(QObject):
     def __init__(self):
         QObject.__init__(self)
@@ -51,8 +49,9 @@ class MainWindow(QObject):
     signalUser = Signal(str)
     signalPass = Signal(str)
     signalLogin = Signal(bool)
-    signalInstall = Signal(bool)
-    signalInstallLog = Signal(str)
+    signalButtonInstall = Signal(bool)
+    signalInstalledCoreBackend=Signal(bool)
+    # signalInstallLog = Signal(str)
 
     # Function To Check Login
     @Slot(str, str)
@@ -78,24 +77,24 @@ class MainWindow(QObject):
         nameOfFunction=sys._getframe().f_code.co_name
         nameOfFile=__file__
         print(f'[{nameOfFile}][{nameOfFunction}] Started')
-        # self.progressBarInstallPythonBackend.visible=True
-        # self.ApplicationWindow.progressBarInstallPythonBackend=1.0
-        self.signalInstall.emit(True)
+        
+        ###########################
+        # 1. Install core backend #
+        ###########################
+        # emit signal of task started
+        self.signalButtonInstall.emit(True)
 
-        if not os.path.isdir(PATH_BACKEND):
-            os.mkdir(PATH_BACKEND)
-
-            self.runCommandInstallPythonBackend()
-            # self.signalInstallLog.emit("Log: " + log_git_clone_backend)
-
-            # log_execute_main_backend = os.popen(COMMAND_EXECUTE_MAIN_BACKEND).read()
+        # Clone the repository
+        if not os.path.isdir(PATH_CORE_BACKEND):
+            os.mkdir(PATH_CORE_BACKEND)
+            self.runFunctionInstallCoreBackend()
         else:
-            
-            print(f'[{nameOfFile}][{nameOfFunction}] Path {PATH_BACKEND} already exist')
+            print(f'[{nameOfFile}][{nameOfFunction}] Path {PATH_CORE_BACKEND} already exist')
+            self.runFunctionInstallCoreBackendFinished() # Force finish
 
         print(f'[{nameOfFile}][{nameOfFunction}] Finished')
 
-    def runCommandInstallPythonBackend(self):
+    def runFunctionInstallCoreBackend(self):
         """
         Script that run a class as Thread to don't freeze main app
         """
@@ -106,15 +105,17 @@ class MainWindow(QObject):
         # Step 2: Create a QThread object
         self.thread = QThread()
         # Step 3: Create a worker object
-        self.worker = WorkerInstallPythonBackend()
+        self.worker = WorkerInstallCoreBackend()
         # Step 4: Move worker to the thread
         self.worker.moveToThread(self.thread)
         # Step 5: Connect signals and slots
         self.thread.started.connect(self.worker.runGitClonePythonBackend)
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
-        self.worker.logText.connect(self.sendReportLogText)
+        self.thread.finished.connect(self.runFunctionInstallCoreBackendFinished)
+        
+        # self.worker.sgnProgressInstallCoreBackend.connect(self.sendSgnInstallCoreBackend)
+        # self.worker.logText.connect(self.sendReportLogText)
         # Step 6: Start the thread
         self.thread.start()
 
@@ -128,21 +129,17 @@ class MainWindow(QObject):
         # )
         print(f'[{nameOfFile}][{nameOfFunction}] Finished')
 
-    def sendReportLogText(self, mystr):
+    @Slot()
+    def runFunctionInstallCoreBackendFinished(self):
         """
-        Send log from backend to frontend
+        Function that executes when a Thread finish
         """
-        nameOfFunction=sys._getframe().f_code.co_name
-        nameOfFile=__file__
-        print(f'[{nameOfFile}][{nameOfFunction}] Started')
-
-        self.signalInstallLog.emit("ga")
-        
-        print(f'[{nameOfFile}][{nameOfFunction}] Finished')
-
+        # emit signal of task finished
+        self.signalInstalledCoreBackend.emit(True) # Finish cloning core repo
 
 # INSTACE CLASS
 if __name__ == "__main__":
+    # Create app and engine
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
 
@@ -150,7 +147,7 @@ if __name__ == "__main__":
     main = MainWindow()
     engine.rootContext().setContextProperty("backend", main)
 
-    # Load QML File
+    # Load QML File (Path like below)
     engine.load(os.path.join(os.path.dirname(__file__), "qml/main.qml"))
 
     # Check Exit App

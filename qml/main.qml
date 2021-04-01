@@ -33,7 +33,7 @@ ApplicationWindow{
         id:labelFieldTitle1
         width:300
         text:qsTr("1. Install backend")
-        font.pointSize: 14
+        font.pointSize: 12
         color: "#FFFFFF"
         verticalAlignment: Text.AlignVCenter        
         anchors.horizontalCenter: parent.horizontalCenter
@@ -110,6 +110,22 @@ ApplicationWindow{
     }
 
     
+    // TEXT FIELD LOG
+    Text{
+        id: myTexLog
+        width: 300
+        text: qsTr("")
+        color: "#FFFFFF"
+        // selectByMouse: true
+        // placeholderText: qsTr("Log here")
+        verticalAlignment: Text.AlignVCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: buttonLogin.bottom
+        anchors.topMargin: 10
+        // echoMode: TextInput.Password
+    }
+
+    
     Connections {
         target: backend
 
@@ -117,7 +133,6 @@ ApplicationWindow{
         property string username: ""
         property string password: ""
 
-        property string logInstall: ""
 
         // CREATE STR TO STORE
         function onSignalUser(myUser){
@@ -125,9 +140,6 @@ ApplicationWindow{
         }
         function onSignalPass(myPass){
             password = myPass 
-        }
-        function onSignalInstallLog(myInstallLog){
-            logInstall = myInstallLog 
         }
 
 
@@ -149,11 +161,25 @@ ApplicationWindow{
             }
         }
 
-        // FUNCTION PROGRESS BAR
-        function onSignalInstall(boolValue){
+        // FUNCTION BUTTON INSTALL
+        function onSignalButtonInstall(boolValue){
             if(boolValue){
-                progressBarInstallPythonBackend.value=1.0
+                buttonInstall.enabled = false
+                progressBarInstallPythonBackend.indeterminate=true
+                myTexLog.text="onSignalButtonInstall"
             } 
         }
+
+        // FUNCTION BUTON INSTALL ACTION FINISHED
+        function onSignalInstalledCoreBackend(myBool){
+            if(myBool){
+                progressBarInstallPythonBackend.indeterminate=false
+                progressBarInstallPythonBackend.value=1.0
+                buttonInstall.text=buttonInstall.text+" (DONE)"
+                myTexLog.text="onSignalInstalledCoreBackend"
+
+            } 
+        }
+
     }    
 }
