@@ -31,7 +31,9 @@ python3 main.py
 
 1. `ImportError: libOpenGL.so.0: cannot open shared object file: No such file or directory`
 
-`sudo apt install libopengl0 -y #https://stackoverflow.com/a/65751558/10491422`
+```
+sudo apt install libopengl0 -y #https://stackoverflow.com/a/65751558/10491422
+```
 
 
 ## Contributions
