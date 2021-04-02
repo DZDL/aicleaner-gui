@@ -17,16 +17,21 @@ class MainWindow(QObject):
     def __init__(self):
         QObject.__init__(self)
 
+        
+    # -----------------------------------------------
+    # GENERAL OBJECTS: signals, mutexs, etc
+    # -----------------------------------------------
+
     # Static Info
-    # staticUser = "user"
-    # staticPass = "pass"
+    # Nothing to see
 
     # Signals To Send Data
-    signalButtonInstall = Signal(bool)
-    signalInstalledCoreBackend=Signal(bool)
-
-    signalButtonRunCore=Signal(bool)
-    signalCoreBackendRunning=Signal(bool)
+    ## Signals for install button
+    signalButtonInstall = Signal(bool) # when pressed
+    signalInstalledCoreBackend=Signal(bool) # when finished task
+    ## Signals for run button
+    signalButtonRunCore=Signal(bool) # when pressed
+    signalCoreBackendRunning=Signal(bool) # when finished task
 
     
     # -----------------------------------------------
