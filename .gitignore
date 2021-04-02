@@ -6,9 +6,10 @@ backend/*
 
 # Temporal Python files
 
-*/__pycache__/*
+*__pycache__/*
 
 
 # Windows build
 build/*
 dist/*
+*.spec
